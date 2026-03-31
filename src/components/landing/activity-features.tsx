@@ -88,7 +88,7 @@ function ActivityCell({
 
     return (
         <div
-            className={`w-[10px] h-[10px] sm:w-[11px] sm:h-[11px] rounded-sm ${levelColors[day.level]} cursor-pointer transition-all hover:ring-2 hover:ring-accent/50 hover:ring-offset-1 hover:ring-offset-background`}
+            className={`w-2.5 h-2.5 sm:w-2.75 sm:h-2.75 rounded-sm ${levelColors[day.level]} cursor-pointer transition-all hover:ring-2 hover:ring-accent/50 hover:ring-offset-1 hover:ring-offset-background`}
             onMouseEnter={(e) => onHover(day, e)}
             onMouseLeave={onLeave}
         />
@@ -158,20 +158,20 @@ function ContributionGrid() {
                     {/* Grid with Day Labels */}
                     <div className="flex">
                         {/* Day Labels */}
-                        <div className="flex flex-col justify-between pr-2 text-xs text-muted-foreground h-[88px]">
-                            <span className="h-[11px] leading-[11px]">Lun</span>
-                            <span className="h-[11px] leading-[11px]">Mie</span>
-                            <span className="h-[11px] leading-[11px]">Vie</span>
+                        <div className="flex flex-col justify-between pr-2 text-xs text-muted-foreground h-22">
+                            <span className="h-2.75 leading-2.75">Lun</span>
+                            <span className="h-2.75 leading-2.75">Mie</span>
+                            <span className="h-2.75 leading-2.75">Vie</span>
                         </div>
 
                         {/* Cells */}
-                        <div className="flex gap-[3px]">
+                        <div className="flex gap-0.75">
                             {weeks.map((week, weekIndex) => (
-                                <div key={weekIndex} className="flex flex-col gap-[3px]">
+                                <div key={weekIndex} className="flex flex-col gap-0.75">
                                     {Array.from({ length: 7 }).map((_, dayIndex) => {
                                         const day = week.find((d) => d.date.getDay() === dayIndex)
                                         if (!day) {
-                                            return <div key={dayIndex} className="w-[10px] h-[10px] sm:w-[11px] sm:h-[11px]" />
+                                            return <div key={dayIndex} className="w-2.5 h-2.5 sm:w-2.75 sm:h-2.75" />
                                         }
                                         return (
                                             <ActivityCell
@@ -204,7 +204,7 @@ function ContributionGrid() {
                         return (
                             <div
                                 key={level}
-                                className={`w-[10px] h-[10px] rounded-sm ${levelColors[level]}`}
+                                className={`w-2.5 h-2.5 rounded-sm ${levelColors[level]}`}
                             />
                         )
                     })}
@@ -283,7 +283,7 @@ export function ActivityFeatures() {
                                     key={index}
                                     className="flex gap-4 p-4 rounded-xl bg-card/50 border border-border/50 hover:border-accent/30 transition-colors"
                                 >
-                                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                                    <div className="shrink-0 w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
                                         <benefit.icon className="w-5 h-5 text-accent" />
                                     </div>
                                     <div>

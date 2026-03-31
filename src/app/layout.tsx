@@ -7,25 +7,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-headi
 
 export const metadata: Metadata = {
   title: 'Daily Push - Tu Agenda Personal',
-  description: 'Organiza tu dia a dia de forma simple. Una agenda personal para mantener el foco en lo que importa.',
-  generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+  description: 'Organiza tu dia a dia de forma simple para mantener el foco en lo que importa.',
 }
 
 export default function RootLayout({
