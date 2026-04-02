@@ -1,81 +1,80 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { TrendingUp, Target, BarChart3, Zap } from "lucide-react"
 
-// Generate mock activity data for the last 52 weeks
-function generateMockData() {
-    const data: { date: Date; level: number; tasks: number }[] = []
-    const today = new Date()
-    const startDate = new Date(today)
-    startDate.setDate(startDate.getDate() - 364) // ~52 weeks ago
-
-    for (let i = 0; i < 365; i++) {
-        const date = new Date(startDate)
-        date.setDate(date.getDate() + i)
-
-        // Generate random activity level (0-4)
-        // Weight towards lower values to simulate realistic activity
-        const rand = Math.random()
-        let level: number
-        if (rand < 0.3) level = 0
-        else if (rand < 0.5) level = 1
-        else if (rand < 0.7) level = 2
-        else if (rand < 0.85) level = 3
-        else level = 4
-
-        const tasksPerLevel = [0, 1, 3, 5, 8]
-
-        data.push({
-            date,
-            level,
-            tasks: tasksPerLevel[level] + Math.floor(Math.random() * 2),
-        })
-    }
-
-    return data
+type ActivityDay = {
+    label: string
+    tasks: number
+    level: number
 }
 
-// Group data by weeks
-function groupByWeeks(data: { date: Date; level: number; tasks: number }[]) {
-    const weeks: { date: Date; level: number; tasks: number }[][] = []
-    let currentWeek: { date: Date; level: number; tasks: number }[] = []
+const activityData: ActivityDay[][] = [
+    [
+        { label: "Lun", tasks: 1, level: 1 },
+        { label: "Mar", tasks: 3, level: 2 },
+        { label: "Mie", tasks: 0, level: 0 },
+        { label: "Jue", tasks: 5, level: 3 },
+        { label: "Vie", tasks: 2, level: 2 },
+        { label: "Sab", tasks: 6, level: 4 },
+        { label: "Dom", tasks: 1, level: 1 },
+    ],
+    [
+        { label: "Lun", tasks: 0, level: 0 },
+        { label: "Mar", tasks: 2, level: 2 },
+        { label: "Mie", tasks: 4, level: 3 },
+        { label: "Jue", tasks: 1, level: 1 },
+        { label: "Vie", tasks: 3, level: 2 },
+        { label: "Sab", tasks: 5, level: 3 },
+        { label: "Dom", tasks: 7, level: 4 },
+    ],
+    [
+        { label: "Lun", tasks: 2, level: 2 },
+        { label: "Mar", tasks: 1, level: 1 },
+        { label: "Mie", tasks: 0, level: 0 },
+        { label: "Jue", tasks: 4, level: 3 },
+        { label: "Vie", tasks: 6, level: 4 },
+        { label: "Sab", tasks: 3, level: 2 },
+        { label: "Dom", tasks: 2, level: 2 },
+    ],
+    [
+        { label: "Lun", tasks: 5, level: 3 },
+        { label: "Mar", tasks: 3, level: 2 },
+        { label: "Mie", tasks: 1, level: 1 },
+        { label: "Jue", tasks: 0, level: 0 },
+        { label: "Vie", tasks: 4, level: 3 },
+        { label: "Sab", tasks: 6, level: 4 },
+        { label: "Dom", tasks: 2, level: 2 },
+    ],
+    [
+        { label: "Lun", tasks: 1, level: 1 },
+        { label: "Mar", tasks: 2, level: 2 },
+        { label: "Mie", tasks: 3, level: 2 },
+        { label: "Jue", tasks: 5, level: 3 },
+        { label: "Vie", tasks: 0, level: 0 },
+        { label: "Sab", tasks: 4, level: 3 },
+        { label: "Dom", tasks: 7, level: 4 },
+    ],
+    [
+        { label: "Lun", tasks: 2, level: 2 },
+        { label: "Mar", tasks: 0, level: 0 },
+        { label: "Mie", tasks: 1, level: 1 },
+        { label: "Jue", tasks: 3, level: 2 },
+        { label: "Vie", tasks: 5, level: 3 },
+        { label: "Sab", tasks: 6, level: 4 },
+        { label: "Dom", tasks: 4, level: 3 },
+    ],
+]
 
-    data.forEach((day, index) => {
-        currentWeek.push(day)
-        if (day.date.getDay() === 6 || index === data.length - 1) {
-            weeks.push(currentWeek)
-            currentWeek = []
-        }
-    })
-
-    return weeks
-}
-
-// Get month labels
-function getMonthLabels(weeks: { date: Date; level: number; tasks: number }[][]) {
-    const months: { label: string; index: number }[] = []
-    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-    let lastMonth = -1
-
-    weeks.forEach((week, index) => {
-        const firstDay = week[0]
-        if (firstDay && firstDay.date.getMonth() !== lastMonth) {
-            lastMonth = firstDay.date.getMonth()
-            months.push({ label: monthNames[lastMonth], index })
-        }
-    })
-
-    return months
-}
+const monthLabels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun"]
 
 function ActivityCell({
     day,
     onHover,
-    onLeave
+    onLeave,
 }: {
-    day: { date: Date; level: number; tasks: number }
-    onHover: (day: { date: Date; level: number; tasks: number }, e: React.MouseEvent) => void
+    day: ActivityDay
+    onHover: (day: ActivityDay, e: React.MouseEvent) => void
     onLeave: () => void
 }) {
     const levelColors = [
@@ -88,7 +87,7 @@ function ActivityCell({
 
     return (
         <div
-            className={`w-2.5 h-2.5 sm:w-2.75 sm:h-2.75 rounded-sm ${levelColors[day.level]} cursor-pointer transition-all hover:ring-2 hover:ring-accent/50 hover:ring-offset-1 hover:ring-offset-background`}
+            className={`h-3 w-3 rounded-sm ${levelColors[day.level]} cursor-pointer transition-all hover:ring-2 hover:ring-accent/50 hover:ring-offset-1 hover:ring-offset-background`}
             onMouseEnter={(e) => onHover(day, e)}
             onMouseLeave={onLeave}
         />
@@ -97,17 +96,18 @@ function ActivityCell({
 
 function ContributionGrid() {
     const [tooltip, setTooltip] = useState<{
-        day: { date: Date; level: number; tasks: number }
+        day: ActivityDay
         x: number
         y: number
     } | null>(null)
 
-    const data = useMemo(() => generateMockData(), [])
-    const weeks = useMemo(() => groupByWeeks(data), [data])
-    const monthLabels = useMemo(() => getMonthLabels(weeks), [weeks])
+    const totalContributions = activityData
+        .flat()
+        .reduce((sum, day) => sum + day.tasks, 0)
 
-    const handleHover = (day: { date: Date; level: number; tasks: number }, e: React.MouseEvent) => {
+    const handleHover = (day: ActivityDay, e: React.MouseEvent) => {
         const rect = e.currentTarget.getBoundingClientRect()
+
         setTooltip({
             day,
             x: rect.left + rect.width / 2,
@@ -115,73 +115,43 @@ function ContributionGrid() {
         })
     }
 
-    const formatDate = (date: Date) => {
-        return date.toLocaleDateString("es-ES", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        })
-    }
-
-    const totalContributions = data.reduce((sum, day) => sum + day.tasks, 0)
-
     return (
         <div className="relative">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                    <span className="text-foreground font-medium">{totalContributions}</span> actividades en el ultimo anio
+                    <span className="font-medium text-foreground">{totalContributions}</span>{" "}
+                    actividades de ejemplo
                 </p>
             </div>
 
-            {/* Grid Container */}
             <div className="overflow-x-auto pb-2">
                 <div className="inline-block min-w-max">
-                    {/* Month Labels */}
-                    <div className="flex mb-2 ml-8">
-                        {monthLabels.map((month, i) => (
-                            <div
-                                key={i}
-                                className="text-xs text-muted-foreground"
-                                style={{
-                                    position: "relative",
-                                    left: `${month.index * 13}px`,
-                                    marginRight: i < monthLabels.length - 1 ? "0" : "0"
-                                }}
-                            >
-                                {month.label}
+                    <div className="mb-2 ml-8 flex gap-4">
+                        {monthLabels.map((month) => (
+                            <div key={month} className="text-xs text-muted-foreground">
+                                {month}
                             </div>
                         ))}
                     </div>
 
-                    {/* Grid with Day Labels */}
                     <div className="flex">
-                        {/* Day Labels */}
-                        <div className="flex flex-col justify-between pr-2 text-xs text-muted-foreground h-22">
-                            <span className="h-2.75 leading-2.75">Lun</span>
-                            <span className="h-2.75 leading-2.75">Mie</span>
-                            <span className="h-2.75 leading-2.75">Vie</span>
+                        <div className="flex h-[96px] flex-col justify-between pr-2 text-xs text-muted-foreground">
+                            <span>Lun</span>
+                            <span>Mie</span>
+                            <span>Vie</span>
                         </div>
 
-                        {/* Cells */}
-                        <div className="flex gap-0.75">
-                            {weeks.map((week, weekIndex) => (
-                                <div key={weekIndex} className="flex flex-col gap-0.75">
-                                    {Array.from({ length: 7 }).map((_, dayIndex) => {
-                                        const day = week.find((d) => d.date.getDay() === dayIndex)
-                                        if (!day) {
-                                            return <div key={dayIndex} className="w-2.5 h-2.5 sm:w-2.75 sm:h-2.75" />
-                                        }
-                                        return (
-                                            <ActivityCell
-                                                key={dayIndex}
-                                                day={day}
-                                                onHover={handleHover}
-                                                onLeave={() => setTooltip(null)}
-                                            />
-                                        )
-                                    })}
+                        <div className="flex gap-1">
+                            {activityData.map((week, weekIndex) => (
+                                <div key={weekIndex} className="flex flex-col gap-1">
+                                    {week.map((day, dayIndex) => (
+                                        <ActivityCell
+                                            key={`${weekIndex}-${dayIndex}`}
+                                            day={day}
+                                            onHover={handleHover}
+                                            onLeave={() => setTooltip(null)}
+                                        />
+                                    ))}
                                 </div>
                             ))}
                         </div>
@@ -189,8 +159,7 @@ function ContributionGrid() {
                 </div>
             </div>
 
-            {/* Legend */}
-            <div className="flex items-center justify-end gap-2 mt-4 text-xs text-muted-foreground">
+            <div className="mt-4 flex items-center justify-end gap-2 text-xs text-muted-foreground">
                 <span>Menos</span>
                 <div className="flex gap-1">
                     {[0, 1, 2, 3, 4].map((level) => {
@@ -201,21 +170,16 @@ function ContributionGrid() {
                             "bg-accent/75",
                             "bg-accent",
                         ]
-                        return (
-                            <div
-                                key={level}
-                                className={`w-2.5 h-2.5 rounded-sm ${levelColors[level]}`}
-                            />
-                        )
+
+                        return <div key={level} className={`h-3 w-3 rounded-sm ${levelColors[level]}`} />
                     })}
                 </div>
                 <span>Mas</span>
             </div>
 
-            {/* Tooltip */}
             {tooltip && (
                 <div
-                    className="fixed z-50 px-3 py-2 text-xs bg-popover border border-border rounded-lg shadow-lg pointer-events-none"
+                    className="pointer-events-none fixed z-50 rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-lg"
                     style={{
                         left: tooltip.x,
                         top: tooltip.y - 10,
@@ -223,9 +187,10 @@ function ContributionGrid() {
                     }}
                 >
                     <p className="font-medium text-foreground">
-                        {tooltip.day.tasks} {tooltip.day.tasks === 1 ? "tarea completada" : "tareas completadas"}
+                        {tooltip.day.tasks}{" "}
+                        {tooltip.day.tasks === 1 ? "tarea completada" : "tareas completadas"}
                     </p>
-                    <p className="text-muted-foreground capitalize">{formatDate(tooltip.day.date)}</p>
+                    <p className="text-muted-foreground">{tooltip.day.label}</p>
                 </div>
             )}
         </div>
@@ -236,59 +201,65 @@ const benefits = [
     {
         icon: TrendingUp,
         title: "Mide tu progreso",
-        description: "Visualiza tu actividad diaria y descubre patrones en tu productividad.",
+        description:
+            "Visualiza tu actividad diaria y descubre patrones en tu productividad.",
     },
     {
         icon: Target,
         title: "Construye habitos",
-        description: "Registra actividades diarias y convierte acciones en habitos sostenibles.",
+        description:
+            "Registra actividades diarias y convierte acciones en habitos sostenibles.",
     },
     {
         icon: BarChart3,
         title: "Estadisticas personales",
-        description: "Obtiene insights sobre tu rendimiento con graficos y metricas claras.",
+        description:
+            "Obtiene insights sobre tu rendimiento con graficos y metricas claras.",
     },
     {
         icon: Zap,
         title: "Mantene la consistencia",
-        description: "El seguimiento visual te motiva a mantener el ritmo dia a dia.",
+        description:
+            "El seguimiento visual te motiva a mantener el ritmo dia a dia.",
     },
 ]
 
 export function ActivityFeatures() {
     return (
-        <section id="features" className="py-20 md:py-32 bg-background">
+        <section id="features" className="bg-background py-20 md:py-32">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                {/* Section Header */}
-                <div className="text-center mb-16">
-                    <span className="inline-block px-4 py-1.5 mb-4 text-xs font-medium tracking-wider uppercase bg-accent/10 text-accent rounded-full">
+                <div className="mb-16 text-center">
+                    <span className="mb-4 inline-block rounded-full bg-accent/10 px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-accent">
                         Seguimiento de Actividad
                     </span>
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-balance">
+
+                    <h2 className="text-balance text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">
                         Visualiza tu constancia
                     </h2>
-                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+
+                    <p className="mx-auto mt-4 max-w-2xl text-pretty text-lg text-muted-foreground">
                         Medi lo que haces dia a dia. Tu progreso se refleja en cada cuadrado,
                         mostrando el camino hacia tus metas.
                     </p>
                 </div>
 
-                {/* Main Content */}
-                <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                    {/* Left - Benefits */}
+                <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                     <div className="order-2 lg:order-1">
                         <div className="grid gap-6">
                             {benefits.map((benefit, index) => (
                                 <div
                                     key={index}
-                                    className="flex gap-4 p-4 rounded-xl bg-card/50 border border-border/50 hover:border-accent/30 transition-colors"
+                                    className="flex gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-colors hover:border-accent/30"
                                 >
-                                    <div className="shrink-0 w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                                        <benefit.icon className="w-5 h-5 text-accent" />
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10">
+                                        <benefit.icon className="h-5 w-5 text-accent" />
                                     </div>
+
                                     <div>
-                                        <h3 className="font-semibold text-foreground mb-1">{benefit.title}</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                        <h3 className="mb-1 font-semibold text-foreground">
+                                            {benefit.title}
+                                        </h3>
+                                        <p className="text-sm leading-relaxed text-muted-foreground">
                                             {benefit.description}
                                         </p>
                                     </div>
@@ -297,10 +268,9 @@ export function ActivityFeatures() {
                         </div>
                     </div>
 
-                    {/* Right - Activity Grid */}
                     <div className="order-1 lg:order-2">
-                        <div className="p-6 rounded-2xl bg-card border border-border">
-                            <h3 className="text-lg font-semibold text-foreground mb-4">
+                        <div className="rounded-2xl border border-border bg-card p-6">
+                            <h3 className="mb-4 text-lg font-semibold text-foreground">
                                 Tu progreso diario
                             </h3>
                             <ContributionGrid />
