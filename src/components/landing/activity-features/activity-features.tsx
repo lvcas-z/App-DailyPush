@@ -135,7 +135,7 @@ function ContributionGrid() {
                     </div>
 
                     <div className="flex">
-                        <div className="flex h-[96px] flex-col justify-between pr-2 text-xs text-muted-foreground">
+                        <div className="flex h-24 flex-col justify-between pr-2 text-xs text-muted-foreground">
                             <span>Lun</span>
                             <span>Mie</span>
                             <span>Vie</span>
